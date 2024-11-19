@@ -1,89 +1,35 @@
-import React from "react";
-import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Button } from "react-native";
+import React, { useState } from 'react';
+import { View, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
-const LoginScreen = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+function LoginScreen({ navigation }) {
+    const [phone, setPhone] = useState('0373007856');
+    const [password, setPassword] = useState('123');
 
-    const handleLogin = () => {
-        console.log("Logging in with:", email, password);
-    }
+    const handleLogin = async () => {
+        try {
+            const response = await axios.post('https://kami-backend-5rs0.onrender.com/auth', { phone, password });
+            await AsyncStorage.setItem('token', response.data.token);
+            navigation.navigate('Menu');
+        } catch (error) {
+            Alert.alert('Login Failed', 'Check your credentials');
+        }
+    };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Login</Text>
-
-            <TextInput 
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor="#aaa"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-             />
-
-            <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#aaa"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-             />
-            <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                <Text style={styles.buttonText}>Log in</Text>
-            </TouchableOpacity>
-            <Text style={styles.footerText}>
-                Don't have an account <Text>Sign up</Text>
-            </Text>
+            <TextInput style={styles.input} placeholder="Phone" value={phone} onChangeText={setPhone} />
+            <TextInput style={styles.input} placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} />
+            <Button title="Login" onPress={handleLogin} />
         </View>
-    )
+    );
 }
 
-
-
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        padding: 20,
-    },
-    title: {
-        fontSize: 32,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
-    input: {
-        width: '100%',
-        padding: 15,
-        marginVertical: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        backgroundColor: 'f9f9f9',
-    },
-    button: {
-        width: '100%',
-        padding: 15,
-        backgroundColor: '#007bff',
-        borderRadius: 8,
-        alignItems: 'center',
-        marginVertical: 10,
-    },
-    buttonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    footerText: {
-        color: '#666',
-        marginTop: 'bold',
-    },
+    container: { flex: 1, justifyContent: 'center', padding: 20 },
+    input: { borderWidth: 1, marginBottom: 10, padding: 10, borderRadius: 5 },
 });
+
 
 export default LoginScreen;
